@@ -3,6 +3,7 @@ import axios from 'axios';
 import Item from './item';
 import Input from './input';
 import './list.css';
+import {formatPostData} from '../../helpers'; 
 
 class ToDoList extends Component {
     constructor(props) {
@@ -24,13 +25,43 @@ class ToDoList extends Component {
         this.deleteItem = this.deleteItem.bind(this);
     }
 
-    componentWillMount() {
+    async componentDidMount() {
         this.getListData();
+
+
+        // const response = await axios.get('/api/index.php'); 
+        // console.log("get response", response); 
+    // set it equal to a javascript object 
+        // const alexandra = {
+        //     key:"something different",
+        //     name: "Alexandra",
+        //     age: 101
+        // }; 
+
+
+        // const postData= new URLSearchParams();
+        // postData.append('key', 'Some Value');
+        // postData.append('name', 'Alexandra');
+        // post.Data.append('age', 35); 
+
+        // const postData = formatPostData(alexandra)
+        // const response = await axios.post('/api/to_do_list.php', postData); 
+
+        // const resp = await axios.get("/api/to_do_list.php", {
+        //     params: {action: 'get_to_do_list'}
+        // });
+
+
+    
     }
+
 
     async getListData() {
         // Use get request to get list data
-        const response = { data: {}}; // Remove
+        
+        const response =await axios.get('/api/to_do_list.php', {params: {
+            action: 'get_to_do_list'
+        }}); 
 
         const { message, listItems } = response.data;
 
@@ -52,6 +83,10 @@ class ToDoList extends Component {
 
     async deleteItem(id) {
         // Use delete method to delete a to do item based on ID
+        await axios.delete('/api/to_do_list.php', {params:{
+            action: 'delete_item', 
+            id: 'id'
+        }})
 
         this.getListData();
     }
@@ -60,7 +95,11 @@ class ToDoList extends Component {
         e.preventDefault();
         // Item @ this.state.newItem
         // Use post method to send new item to DB
-        const response = {data: {success: true}}; // Remove
+       const newItem = formatPostData(this.state.newItem);
+       const response = await axios.post('/api/to_do_list.php', newItem, {params:{
+           action: 'save_item'
+         }
+        }); 
 
         const { errors, success } = response.data;
 
@@ -97,6 +136,12 @@ class ToDoList extends Component {
         };
 
         // Use patch request to update item based on id
+
+        await axios.patch('/api/to_do_list.php', dataToSend, {
+            params:{
+                action:'change_complete'
+            }
+        }); 
 
         this.getListData();
     }
